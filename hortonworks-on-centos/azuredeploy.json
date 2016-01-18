@@ -82,12 +82,10 @@
             "type": "string", 
             "defaultValue": "Eval", 
             "allowedValues": [ 
-                "Eval",
-                "Small", 
-                "Medium"
+                "Eval"
             ], 
             "metadata": { 
-                "Description": "T-shirt size of the Couchbase cluster" 
+                "Description": "T-shirt size of the Hortonworks cluster" 
             } 
         },             
         "publicSSHCert":{
@@ -117,7 +115,7 @@
         }
     },
     "variables": {
-        "scriptsUri": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/tree/master/hortonworks-on-centos",          
+        "scriptsUri": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/hortonworks-on-centos",          
         "storageAccount": {
             "prefix": "[parameters('storageAccountPrefix')]",
             "type": "[parameters('storageAccountType')]"
@@ -126,28 +124,37 @@
             "nameNodeCount": 1,
             "dataNodeCount": 3,
             "masterVmSize": "Standard_A3",            
-            "workerVmSize": "Standard_A3"
+            "masterNodeTemplateUri": "/cluster-node-8disk.json",
+            "workerVmSize": "Standard_A3",
+            "workerNodeTemplateUri": "/cluster-node-8disk.json"
         },
         "clusterTshirtSizeSmall": {
             "nameNodeCount": 3,
             "dataNodeCount": 9,
-            "masterVmSize": "Standard_A7",            
-            "workerVmSize": "Standard_A7"           
+            "masterVmSize": "Standard_A6",            
+            "masterNodeTemplateUri": "/cluster-node-8disk.json",
+            "workerVmSize": "Standard_A7",
+            "workerNodeTemplateUri": "/cluster-node-16disk.json"
         },
         "clusterTshirtSizeMedium": {
             "nameNodeCount": 3,
             "dataNodeCount": 99,
             "masterVmSize": "Standard_A7",            
-            "workerVmSize": "Standard_A7"         
+            "masterNodeTemplateUri": "/cluster-node-16disk.json",
+            "workerVmSize": "Standard_A7",
+            "workerNodeTemplateUri": "/cluster-node-16disk.json"         
         },
-        "clusterSpec": "[variables(concat('clusterTshirtSize', parameters('tshirtSize')))]",        
+        "clusterSpec": "[variables(concat('clusterTshirtSize', parameters('tshirtSize')))]",
+        "masterNodeASName": "[concat(parameters('dnsNamePrefix'), '-mnAS')]",
+        "workerNodeASName": "[concat(parameters('dnsNamePrefix'), '-wnAS')]",        
         "vmSpec": {
-            "vmSize": "[variables('clusterSpec').masterVmSize]",
             "adminUserName": "[parameters('adminUserName')]",
             "adminPassword": "[parameters('adminPassword')]",
             "keyVaultResourceId": "[resourceId(parameters('keyVaultResourceGroup'), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
             "keyUri": "[parameters('keyUri')]",
-            "publicSSHCert": "[parameters('publicSSHCert')]"            
+            "publicSSHCert": "[parameters('publicSSHCert')]",
+            "masterNodeASName": "[concat(parameters('dnsNamePrefix'), '-mnAS')]",
+            "workerNodeASName": "[concat(parameters('dnsNamePrefix'), '-wnAS')]"
         },
         "networkSpec": {
             "addressPrefix": "[parameters('addressPrefix')]",
@@ -178,7 +185,13 @@
                     },
                     "networkSpec": {
                         "value": "[variables('networkSpec')]"
-                    }
+                    },
+                    "masterNodeASName": {
+                        "value": "[variables('vmSpec').masterNodeASName]"
+                    },
+                    "workerNodeASName": {
+                        "value": "[variables('vmSpec').workerNodeASName]"
+                    }                    
                 }
             }
         },
@@ -205,8 +218,14 @@
                     "scriptsUri": {
                         "value": "[variables('scriptsUri')]"
                     },
+                    "nodeTemplateUri": {
+                        "value": "[concat(variables('scriptsUri'), variables('clusterSpec').masterNodeTemplateUri)]"
+                    },
                     "storageAccount" : {
                         "value": "[variables('storageAccount')]"        
+                    },
+                    "vmSize": {
+                        "value": "[variables('clusterSpec').masterVmSize]"
                     },
                     "vmCount": {
                         "value": "[variables('clusterSpec').nameNodeCount]"
@@ -219,7 +238,7 @@
                     },
                     "clusterSpec": {
                         "value": "[variables('clusterSpec')]"
-                    }      
+                    }
                 }
             }
         },
@@ -246,8 +265,14 @@
                     "scriptsUri": {
                         "value": "[variables('scriptsUri')]"
                     },
+                    "nodeTemplateUri": {
+                        "value": "[concat(variables('scriptsUri'), variables('clusterSpec').workerNodeTemplateUri)]"
+                    }, 
                     "storageAccount" : {
                         "value": "[variables('storageAccount')]"        
+                    },
+                    "vmSize": {
+                        "value": "[variables('clusterSpec').workerVmSize]"
                     },
                     "vmCount": {
                         "value": "[variables('clusterSpec').dataNodeCount]"
@@ -260,7 +285,7 @@
                     },
                     "clusterSpec": {
                         "value": "[variables('clusterSpec')]"
-                    }                  
+                    }
                 }
             }
         },
@@ -288,8 +313,14 @@
                     "scriptsUri": {
                         "value": "[variables('scriptsUri')]"
                     },
+                    "nodeTemplateUri": {
+                        "value": "[concat(variables('scriptsUri'), variables('clusterSpec').masterNodeTemplateUri)]"
+                    },
                     "storageAccount" : {
                         "value": "[variables('storageAccount')]"        
+                    },
+                    "vmSize": {
+                        "value": "[variables('clusterSpec').masterVmSize]"
                     },
                     "vmSpec": {
                         "value": "[variables('vmSpec')]"
@@ -299,7 +330,7 @@
                     },
                     "clusterSpec": {
                         "value": "[variables('clusterSpec')]"
-                    }             
+                    }
                 }
             }
         }

@@ -1,45 +1,51 @@
 {
-    "$schema": "http://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json# ",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "adminUsername": {
             "type": "string",
             "metadata": {
-                "Description": "Admin username used when provisioning virtual machines"
+                "description": "Admin username used when provisioning virtual machines"
             }
         },
         "adminPassword": {
             "type": "securestring",
             "metadata": {
-                "Description": "Admin password used when provisioning virtual machines"
+                "description": "Admin password used when provisioning virtual machines"
             }
         },
         "storageAccountNamePrefix": {
             "type": "string",
             "defaultValue": "cbdeploy",
             "metadata": {
-                "Description": "Storage account name"
+                "description": "Storage account name"
             }
         },
         "region": {
             "type": "string",
-            "defaultValue": "West US",
+            "allowedValues": [
+                "West US",
+                "East US",
+                "East Asia",
+                "Southeast Asia",
+                "West Europe"
+            ],
             "metadata": {
-                "Description": "Location where resources will be provisioned"
+                "description": "Location where resources will be provisioned"
             }
         },
         "virtualNetworkName": {
             "type": "string",
             "defaultValue": "couchVnet",
             "metadata": {
-                "Description": "Virtual Network"
+                "description": "Virtual Network"
             }
         },
         "clusterName": {
             "type": "string",
             "defaultValue": "couchbasecluster",
             "metadata": {
-                "Description": "The name of the Couchbase cluster"
+                "description": "The name of the Couchbase cluster"
             }
         },
         "tshirtSize": {
@@ -51,28 +57,28 @@
                 "Large"
             ],
             "metadata": {
-                "Description": "T-shirt size of the Couchbase cluster"
+                "description": "T-shirt size of the Couchbase cluster"
             }
         },
         "vmNamePrefix": {
             "type": "string",
             "defaultValue": "cbnode",
             "metadata": {
-                "Description": "Prefx for VM names on the cluster"
+                "description": "Prefx for VM names on the cluster"
             }
         },
         "cbPackageDownloadBase": {
             "type": "string",
             "defaultValue": "http://packages.couchbase.com/releases/3.0.3/",
             "metadata": {
-                "Description": "Couchbase package download location"
+                "description": "Couchbase package download location"
             }
         },
         "cbPackage": {
             "type": "string",
             "defaultValue": "couchbase-server-enterprise_3.0.3-ubuntu12.04_amd64.deb",
             "metadata": {
-                "Description": "Couchbase package to install"
+                "description": "Couchbase package to install"
             }
         },
         "jumpbox": {
@@ -83,7 +89,7 @@
                 "disabled"
             ],
             "metadata": {
-                "Description": "The flag allowing to enable or disable provisioning of the jumpbox VM that can be used to access the nodes"
+                "description": "The flag allowing to enable or disable provisioning of the jumpbox VM that can be used to access the nodes"
             }
         }
     },
@@ -105,14 +111,19 @@
             "adminUsername": "[parameters('adminUsername')]",
             "adminPassword": "[parameters('adminPassword')]",
             "machineNamePrefix": "[parameters('vmNamePrefix')]",
-            "osImageName": "[variables('sourceImage')]",
+            "imageReference": "[variables('imageReference')]",
             "dataDiskSize": 1023
         },
-
+        "imageReference": {
+            "publisher": "Canonical",
+            "offer": "UbuntuServer",
+            "sku": "12.04.5-LTS",
+            "version": "latest"
+        },
         "sourceImageName": "b39f27a8b8c64d52b05eac6a62ebad85__Ubuntu-12_04_5_LTS-amd64-server-20150413-en-us-30GB",
         "sourceImage": "[concat('/',subscription().subscriptionId,'/services/images/',variables('sourceImageName'))]",
-        "templateBaseUrl": "https://raw.githubusercontent.com/ercenk/azurermtemplates/master/couchbase-on-ubuntu/",
-        "sharedBaseUrl": "https://raw.githubusercontent.com/azurermtemplates/azurermtemplates/master/shared_scripts/ubuntu/",
+        "templateBaseUrl": "https://raw.githubusercontent.com/azure/azure-quickstart-templates/master/couchbase-on-ubuntu/",
+        "sharedBaseUrl": "https://raw.githubusercontent.com/azure/azure-quickstart-templates/master/shared_scripts/ubuntu/",
         "storageAccountSuffixForNodeSmall0": "0",
         "storageAccountSuffixForNodeSmall1": "0",
         "storageAccountSuffixForNodeSmall2": "0",
@@ -218,7 +229,7 @@
     }, {
         "name": "[concat(parameters('storageAccountNamePrefix'), copyindex())]",
         "type": "Microsoft.Storage/storageAccounts",
-        "apiVersion": "2014-12-01-preview",
+        "apiVersion": "2015-05-01-preview",
         "dependsOn": ["[concat('Microsoft.Resources/deployments/', 'shared-resources')]"],
         "location": "[variables('commonSettings').region]",
         "copy": {
@@ -316,7 +327,7 @@
         "name": "jumpbox-resources",
         "type": "Microsoft.Resources/deployments",
         "apiVersion": "2015-01-01",
-        "dependsOn": [],
+        "dependsOn": ["[concat('Microsoft.Resources/deployments/', 'shared-resources')]"],
         "properties": {
             "mode": "Incremental",
             "templateLink": {

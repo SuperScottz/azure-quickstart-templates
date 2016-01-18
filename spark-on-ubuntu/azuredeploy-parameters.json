@@ -1,6 +1,6 @@
 {
     "storageAccountName": {
-        "value": "armdeployspark1"
+        "value": ""
     },
     "adminUsername": {
         "value": "adminuser"

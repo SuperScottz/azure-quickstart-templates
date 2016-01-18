@@ -1,5 +1,27 @@
 #!/bin/bash
 
+# The MIT License (MIT)
+#
+# Copyright (c) 2015 Microsoft Azure
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 #--------------------------------------------------------------------------------------------------
 # MongoDB Template for Azure Resource Manager (brought to you by Full Scale 180 Inc)
 #
@@ -201,9 +223,6 @@ configure_replicaset()
 	# Stop the currently running MongoDB daemon as we will need to reload its configuration
 	stop_mongodb
 	
-	# Important not to attempt to start the daemon immediately after it was stopped as unclean shutdown may be wrongly perceived
-	sleep 10s
-	
 	# Attempt to start the MongoDB daemon so that configuration changes take effect
 	start_mongodb
 	
@@ -303,6 +322,9 @@ stop_mongodb()
 		
 		kill -15 $MONGOPID
 	fi
+	
+	# Important not to attempt to start the daemon immediately after it was stopped as unclean shutdown may be wrongly perceived
+	sleep 15s	
 }
 
 configure_db_users()

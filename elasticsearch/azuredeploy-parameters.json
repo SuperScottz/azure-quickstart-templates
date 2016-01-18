@@ -1,15 +1,15 @@
 {
     "dnsNameforLBIP": {
-        "value":""
+        "value":"changeme"
     },
     "storageAccountPrefix" : {
-        "value":""
+        "value":"changeme"
     },
     "adminUsername": {
-        "value": ""
+        "value": "trent"
     },
     "adminPassword": {
-        "value": ""
+        "value": "changeme"
     },
     "dataNodeScaleUnits": {
         "value": 1
@@ -25,5 +25,14 @@
     },
     "esClusterName": {
         "value": "elasticsearch-fullscale"
+    },
+    "loadBalancerType": {
+        "value": "external"
+    },
+    "vmSizeDataNodes": {
+        "value": "Standard_D1"
+    },
+    "vmClientNodeCount": {
+        "value":3
     }
 }
